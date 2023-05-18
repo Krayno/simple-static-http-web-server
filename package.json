@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "scripts": {
+    "dev": "tsc -w"
+  },
+  "dependencies": {
+    "@types/node": "^20.1.7"
+  }
+}
