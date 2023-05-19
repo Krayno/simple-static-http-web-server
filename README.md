@@ -1,4 +1,4 @@
-# A Simple Static Web Server
+# A Simple Static Http Web Server
 A Static Web Server built using Typescript.
 
 ## Details
