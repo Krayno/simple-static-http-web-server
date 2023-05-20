@@ -26,51 +26,60 @@ function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
         //Handle root request.
         req.url += fileExtension == "" ? "/index.html" : "";
 
-        //Read the file, handle outcomes.
-        fs.readFile(new URL('./public' + req.url, import.meta.url), (error, data) => {
-            if (error) {
-                console.log(error);
-                res.writeHead(404);
-                res.end(`404 - The requested URL: "${req.url}" was not found.`);
+        //If request etag matches stored Etag of requested URL, send Not Modified.
+        if (req.headers['if-none-match']) {
+            if (req.headers['if-none-match'] == eTagsDictionary[new URL('./public', import.meta.url).pathname.replace('/', '') + req.url]) {
+                res.writeHead(304, { 'ETag': req.headers['if-none-match'] });
+                res.end();
             }
-            else {
-                //Determine correct MIME type based on file extension.
-                var contentType;
-                var extension = req.url?.split('.')[1];
-                switch (extension) {
-                    case 'html': {
-                        contentType = 'text/html';
-                        break;
-                    }
-                    case 'css': {
-                        contentType = 'text/css';
-                        break;
-                    }
-                    case 'js': {
-                        contentType = 'text/javascript';
-                        break;
-                    }
-                    case 'ico': {
-                        contentType = 'image/x-icon';
-                        break;
-                    }
-                    default: {
-                        contentType = undefined;
-                    }
-                }
-
-                //Handle contentType
-                if (contentType) {
-                    //Respond with data.
-                    res.writeHead(200, { 'Content-Type': contentType, 'ETag': eTagsDictionary[new URL('./public', import.meta.url).pathname.replace('/', '') + req.url], 'Cache-Control': 'max-age=604800' });
-                    res.end(data);
+        }
+        else {
+            //Read the file, handle outcomes.
+            fs.readFile(new URL('./public' + req.url, import.meta.url), (error, data) => {
+                if (error) {
+                    console.log(error);
+                    res.writeHead(404);
+                    res.end(`404 - The requested URL: "${req.url}" was not found.`);
                 }
                 else {
-                    res.writeHead(415);
-                    res.end(`415 - Unsupported Media Type: "${extension}" was not supported.`);
+                    //Determine correct MIME type based on file extension.
+                    var contentType;
+                    var extension = req.url?.split('.')[1];
+                    switch (extension) {
+                        case 'html': {
+                            contentType = 'text/html';
+                            break;
+                        }
+                        case 'css': {
+                            contentType = 'text/css';
+                            break;
+                        }
+                        case 'js': {
+                            contentType = 'text/javascript';
+                            break;
+                        }
+                        case 'ico': {
+                            contentType = 'image/x-icon';
+                            break;
+                        }
+                        default: {
+                            contentType = undefined;
+                        }
+                    }
+
+                    //Handle contentType
+                    if (contentType) {
+                        //Respond with data.
+                        res.writeHead(200, { 'Content-Type': contentType, 'ETag': eTagsDictionary[new URL('./public', import.meta.url).pathname.replace('/', '') + req.url], 'Cache-Control': 'max-age=604800' });
+                        res.end(data);
+                    }
+                    else {
+                        res.writeHead(415);
+                        res.end(`415 - Unsupported Media Type: "${extension}" was not supported.`);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
     else {
         res.writeHead(404);
