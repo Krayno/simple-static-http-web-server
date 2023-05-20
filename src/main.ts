@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as crypto from 'crypto';
 
 const server = http.createServer(requestHandler);
-const eTagsDictionary = generateETags('./public');
+const eTagsDictionary = generateETags(new URL('./public', import.meta.url).pathname);
 
 
 function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
@@ -61,7 +61,7 @@ function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
                 //Handle contentType
                 if (contentType) {
                     //Respond with data.
-                    res.writeHead(200, { 'Content-Type': contentType, 'ETag': eTagsDictionary['./public' + req.url], 'Cache-Control': 'max-age=604800' });
+                    res.writeHead(200, { 'Content-Type': contentType, 'ETag': eTagsDictionary[new URL('./public', import.meta.url).pathname + req.url], 'Cache-Control': 'max-age=604800' });
                     res.end(data);
                 }
                 else {
