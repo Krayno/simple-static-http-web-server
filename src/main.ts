@@ -3,8 +3,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
 
+const hostName = 'localhost';
+const port = 80;
 const server = http.createServer(requestHandler);
-const eTagsDictionary = generateETags(new URL('./public', import.meta.url).pathname);
+const eTagsDictionary = generateETags(new URL('./public', import.meta.url).pathname.replace('/', ''));
 
 
 function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
@@ -78,16 +80,9 @@ function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
 }
 
 //Check if command line arguements have been passed.
-if (process.argv[3] && process.argv[2]) {
-    //On start up, generate a md5 hash e-tag for every file.
-    console.log('Generated eTags for session:', eTagsDictionary);
-
-    server.listen(parseInt(process.argv[3]), process.argv[2]);
-    console.log(`Listening on ${process.argv[2]}:${process.argv[3]}`);
-}
-else {
-    console.log(`No command line arguments found: 'hostname', 'port'`);
-}
+console.log('Generated eTags for session:', eTagsDictionary);
+server.listen(port, hostName);
+console.log(`Listening on ${hostName}:${port}`);
 
 function generateETags(filePath: string): Record<string, string> {
     //Create Temporary Dictionary.
