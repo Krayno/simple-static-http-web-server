@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as crypto from 'crypto';
 
 const hostName = 'localhost';
-const port = 80;
+const port = 8080;
 const server = http.createServer(requestHandler);
 const eTagsDictionary = generateETags(new URL('./public', import.meta.url).pathname.replace('/', ''));
 
@@ -24,7 +24,6 @@ function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
         //If the file extension is empty, set req.url to '/index.html' and find the first 'index.html' in the directory.
         let fileExtension = path.extname(req.url);
         //Handle root request.
-
         req.url += fileExtension == "" ? "/index.html" : "";
 
         //Read the file, handle outcomes.
@@ -63,7 +62,7 @@ function requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
                 //Handle contentType
                 if (contentType) {
                     //Respond with data.
-                    res.writeHead(200, { 'Content-Type': contentType, 'ETag': eTagsDictionary[new URL('./public', import.meta.url).pathname + req.url], 'Cache-Control': 'max-age=604800' });
+                    res.writeHead(200, { 'Content-Type': contentType, 'ETag': eTagsDictionary[new URL('./public', import.meta.url).pathname.replace('/', '') + req.url], 'Cache-Control': 'max-age=604800' });
                     res.end(data);
                 }
                 else {
